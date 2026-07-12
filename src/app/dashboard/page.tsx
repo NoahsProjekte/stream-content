@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from '../actions'
 import Link from 'next/link'
 import Image from 'next/image'
+import RankBadge, { type RankTier } from '@/components/RankBadge'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -22,6 +23,13 @@ export default async function DashboardPage() {
     discordMeta.custom_claims?.global_name ??
     discordMeta.provider_id ??
     null
+
+  // Placeholder rank — in production derive this from your DB
+  const userRank: RankTier = 'gold'
+
+  const allRanks: RankTier[] = [
+    'iron', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'grandmaster',
+  ]
 
   // Placeholder content items
   const contentItems = [
@@ -128,9 +136,12 @@ export default async function DashboardPage() {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-white">
-                Welcome back, {displayName.split(' ')[0]}
-              </h1>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-2xl font-bold text-white">
+                  Welcome back, {displayName.split(' ')[0]}
+                </h1>
+                <RankBadge tier={userRank} size="md" />
+              </div>
               <p className="text-gray-500 text-sm flex items-center gap-1.5 mt-0.5">
                 {/* Discord icon inline */}
                 <svg className="w-3.5 h-3.5 text-[#5865F2]" viewBox="0 0 24 24" fill="currentColor">
@@ -170,6 +181,28 @@ export default async function DashboardPage() {
               <div className="text-xs text-gray-600 mt-1">{stat.delta}</div>
             </div>
           ))}
+        </div>
+
+        {/* Ranks showcase */}
+        <div className="mb-8 rounded-xl bg-[#1a1a1a] border border-[#2e2e2e] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#2e2e2e]">
+            <h2 className="font-semibold text-white text-sm">Ranks</h2>
+            <span className="text-xs text-gray-600">Your current rank is highlighted</span>
+          </div>
+          <div className="px-5 py-4 flex flex-wrap gap-3">
+            {allRanks.map((tier) => (
+              <div
+                key={tier}
+                className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
+                  tier === userRank
+                    ? 'bg-[#242424] ring-1 ring-[#2e2e2e]'
+                    : 'opacity-50 hover:opacity-75'
+                }`}
+              >
+                <RankBadge tier={tier} size="lg" />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Content grid */}
